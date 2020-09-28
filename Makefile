@@ -3,16 +3,18 @@
 #    modify the CLASSES macro so that it has the names of your .java files;
 #    run 'make', and if all goes well, it should compile all of your java source files that need to be re-built.
 
-# makkefile begins
+# makefile begins
 # define a variable for compiler flags (JFLAGS)
 # define a variable for the compiler (JC)  
 # define a variable for the Java Virtual Machine (JVM)
 # define a variable for a parameter. When you run make, you could use:
 # make run FILE="Algo.csv" para sobre escribir el valor de FILE. 
 
+CLASS_DIR = class
+
 JFLAGS = -g
-JC = javac
-JVM= java 
+JC  = javac
+JVM = java
 FILE=
 
 #
@@ -27,7 +29,6 @@ FILE=
 
 .SUFFIXES: .java .class
 
-
 #
 # Here is our target entry for creating .class files from .java files 
 # This is a target entry that uses the suffix rule syntax:
@@ -40,33 +41,42 @@ FILE=
 # Remember that there must be a < tab > before the command line ('rule') 
 #
 
+#$(CLASS_DIR)/%.class : %.java
+#	@echo "  \033[1;32mCompiling: $<\033[0m"
+#	@mkdir -p $(CLASS_DIR)
+#	$(JC) $(JFLAGS) $< -d $(CLASS_DIR)
+#	@echo ""
+
 .java.class:
-	$(JC) $(JFLAGS) $*.java
+	@echo "  \033[1;32mCompiling: $<\033[0m"
+	@mkdir -p $(CLASS_DIR)
+	$(JC) $(JFLAGS) $< -d $(CLASS_DIR)
+	@echo ""
 
 
 #
 # CLASSES is a macro consisting of N words (one for each java source file)
 # When a single line is too long, use \<return> to split lines that then will be
 # considered as a single line. For example:
-# NAME = Camilo \
-#        Juan
+# NAME = Camilo.java \
+#        Juan.java
 # is understood as
 # NAME = Camilo        Juan
 
-CLASSES = Store.java
+CLASSES = \
+Noodle.java \
+Spaghetti.java
 
 #
 # MAIN is a variable with the name of the file containing the main method
 #
 
-MAIN = Experiment 
+MAIN = Noodle 
 
-#
 # the default make target entry
 # for this example it is the target classes
 
 default: classes
-
 
 # Next line is a target dependency line
 # This target entry uses Suffix Replacement within a macro: 
@@ -76,15 +86,15 @@ default: classes
 # with the .class suffix
 #
 
-classes: $(CLASSES:.java=.class)
-
+classes: $(CLASSES:%.java=%.class)
 
 # Next two lines contain a target for running the program
 # Remember the tab in the second line.
 # $(JMV) y $(MAIN) are replaced by their values
 
-run: $(MAIN).class
-	$(JVM) $(MAIN)
+EXEC = $(JVM) --class-path $(CLASS_DIR) $(MAIN)
+run: 
+	@echo "RUN: $(EXEC)" && $(EXEC)
 
 # this line is to remove all unneeded files from
 # the directory when we are finished executing(saves space)
@@ -93,4 +103,4 @@ run: $(MAIN).class
 #
 
 clean:
-	$(RM) *.class
+	$(RM) $(CLASS_DIR)/*.class
